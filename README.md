@@ -1,4 +1,4 @@
-# LNbits - Bitcoin Onchain and Lightning Payment Gateway
+# LNbits - Bitcoin Lightning and Onchain Payment Gateway
 
 ## Introduction
 
@@ -31,7 +31,7 @@ This plugin is released under the [MIT license](https://github.com/lnbits/woocom
 1. That's it. Now, let's set up the WooCommerce plugin!
 
 ### WooCommerce Plugin Setup
-1. Install the plugin using your Wordpress admin panel by searching for "LNbits - Bitcoin Onchain and Lightning
+1. Install the plugin using your Wordpress admin panel by searching for "LNbits - Bitcoin Lightning and Onchain
    Payment Gateway" or drop this repo into your wp-content/plugins directory
 1. Activate the plugin
 1. Open _WooCommerce > Settings > Payments_ and activate the LNbits payment method, then click _manage_.

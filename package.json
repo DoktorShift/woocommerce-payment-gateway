@@ -1,6 +1,6 @@
 {
   "name": "lnbits-payment-gateway",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "LNbits payment gateway for WooCommerce",
   "scripts": {
     "build": "wp-scripts build blocks/src/index.js --output-path=blocks/build",
