@@ -23,7 +23,7 @@ If you find a bug, or have an idea for improvement, please [file an issue](https
 = LNbits =
 This plugin needs an LNbits instance. https://lnbits.com/
 
-You can test with legend.lnbits.com, and use your own for real-life use.
+You can test the plugin with the LNbits **demo** instance at demo.lnbits.com but please don't use the demo instance for real-life use.
 
 = Blockchain.info =
 This plugin uses Blockchain.info for converting fiat currencies into Bitcoin, according to the current rates.

@@ -59,22 +59,23 @@ function lnbits_satspay_server_init()
             return wp_send_json(['status' => 'error', 'message' => 'Order not found']);
         }
 
-        // Check if order is already completed
-        if ($order->has_status('completed')) {
-            return wp_send_json(['status' => 'success', 'message' => 'Order already completed']);
+        // Check if order is already paid
+        if ($order->is_paid()) {
+            return wp_send_json(['status' => 'success', 'message' => 'Order already paid']);
         }
 
         // Add order note
         $order->add_order_note('Payment is settled and has been credited to your LNbits account. Purchased goods/services can be securely delivered to the customer.');
         
-        // Set paid date and complete the order
+        // Set paid date
         $order->set_date_paid(current_time('mysql', true));
-        $order->set_status('completed');
-        $order->payment_complete();
         
         // Set transaction ID
         $payment_hash = $order->get_meta('lnbits_satspay_server_payment_hash');
         $order->set_transaction_id($payment_hash);
+        
+        // Mark payment complete - this will automatically set status based on product type
+        $order->payment_complete($payment_hash);
         
         // Save all changes
         $order->save();
@@ -268,8 +269,8 @@ function lnbits_satspay_server_init()
         public function check_payment($order_id) {
             $order = wc_get_order($order_id);
             
-            // If order is already completed, no need to check
-            if ($order->has_status('completed')) {
+            // If order is already paid, no need to check
+            if ($order->is_paid()) {
                 return;
             }
 
@@ -279,7 +280,8 @@ function lnbits_satspay_server_init()
                 $r = $this->api->checkChargePaid($lnbits_payment_id);
                 
                 if ($r['status'] == 200 && $r['response']['paid'] == true) {
-                    $order->payment_complete();
+                    $payment_hash = $order->get_meta('lnbits_satspay_server_payment_hash');
+                    $order->payment_complete($payment_hash);
                     $order->add_order_note(__('Payment verified via LNbits', 'lnbits'));
                     $order->save();
                 }
