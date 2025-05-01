@@ -81,6 +81,9 @@ function lnbits_satspay_server_init()
 
     // Defined here, because it needs to be defined after WC_Payment_Gateway is already loaded.
     class WC_Gateway_LNbits_Satspay_Server extends WC_Payment_Gateway {
+        // Declare the property at the class level
+        protected $api;
+
         public function __construct()
         {
             global $woocommerce;
@@ -275,5 +278,21 @@ function lnbits_satspay_server_init()
         }
 
     }
+
+    // Add this near the top of your plugin initialization, before the blocks registration
+    add_action('init', function() {
+        load_plugin_textdomain('lnbits', false, dirname(plugin_basename(__FILE__)) . '/languages');
+    });
+
+    // Then your blocks registration
+    add_action('woocommerce_blocks_loaded', function() {
+        require_once(__DIR__ . '/blocks/index.php');
+        add_action(
+            'woocommerce_blocks_payment_method_type_registration',
+            function($payment_method_registry) {
+                $payment_method_registry->register(new LNbitsSatsPayPlugin\Blocks\LNbitsPaymentMethod);
+            }
+        );
+    });
 
 }

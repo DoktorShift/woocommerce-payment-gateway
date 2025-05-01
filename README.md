@@ -40,8 +40,54 @@ This plugin is released under the [MIT license](https://github.com/lnbits/woocom
 1. Enter the LNbits URL for your LNbits server and paste in your settings for the Invoice/Read Key, Wallet ID and Watch Only Extension Wallet ID
    ![](docs/images/woocommerce-setup-2.jpg)
 1. Click "Save changes"
-1. ?????
-1. Profit
+
+## Development
+
+To build the blocks integration:
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Build the assets:
+```bash
+npm run build
+```
+
+For development, you can use:
+```bash
+npm run start
+```
+```
+
+The key changes in this update are:
+
+1. Added support for WooCommerce Blocks API through a new `LNbitsPaymentMethod` class
+2. Created a React component for the checkout block interface
+3. Set up the necessary build process for JavaScript assets
+4. Maintained compatibility with the existing classic checkout while adding support for the new blocks checkout
+
+To implement this update:
+
+1. Create the directory structure:
+```bash
+mkdir -p blocks/src blocks/build
+```
+
+2. Create all the files mentioned above
+3. Install the Node.js dependencies
+4. Build the JavaScript assets
+5. Test the integration in both classic and block-based checkout pages
+
+The updated plugin will now work with both:
+- Classic WooCommerce checkout
+- New WooCommerce Blocks checkout
+
+The payment flow remains the same, but the integration is now compatible with the modern block-based checkout experience. The plugin will continue to:
+1. Create a SatsPay charge when an order is placed
+2. Redirect to the LNbits payment page
+3. Handle payment confirmation through webhooks
 
 ### Acknowledgements
 This plugin is a fork of Phaedrus' original [LNBits For WooCommerce](https://gitlab.com/sovereign-individuals/lnbits-for-woocommerce).
