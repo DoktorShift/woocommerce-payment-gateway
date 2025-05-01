@@ -1,7 +1,7 @@
 === # LNbits - Bitcoin Lightning and Onchain Payment Gateway ===
 Contributors: BlackCoffee, philosopher_phaedrus
 Requires at least: 5.1
-Tested up to: 6.6
+Tested up to: 6.8.1
 Requires PHP: 7.0
 Stable tag: 1.0.0
 License: MIT
