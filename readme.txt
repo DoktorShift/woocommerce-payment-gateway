@@ -1,9 +1,9 @@
-=== # LNbits - Bitcoin Onchain and Lightning Payment Gateway ===
-Contributors: BlackCoffee, philosopher_phaedrus, dni
+=== # LNbits - Bitcoin Lightning and Onchain Payment Gateway ===
+Contributors: BlackCoffee, philosopher_phaedrus
 Requires at least: 5.1
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 0.0.6
+Stable tag: 1.0.0
 License: MIT
 License URI: https://github.com/lnbits/woocommerce-payment-gateway/blob/main/LICENSE
 Tags: bitcoin, lightning, lnbits, lightning network, accept bitcoin, accept lightning, instant bitcoin, bitcoin processor, bitcoin gateway, payment gateway, payment module, bitcoin module, bitcoin woocommerce, btc
@@ -23,13 +23,13 @@ If you find a bug, or have an idea for improvement, please [file an issue](https
 = LNbits =
 This plugin needs an LNbits instance. https://lnbits.com/
 
-You can test with legend.lnbits.com, and use your own for real-life use.
+You can test the plugin with the LNbits **demo** instance at demo.lnbits.com but please don't use the demo instance for real-life use.
 
 = Blockchain.info =
 This plugin uses Blockchain.info for converting fiat currencies into Bitcoin, according to the current rates.
 https://www.blockchain.com/api
 
 == Acknowledgements ==
-This plugin is a fork of Phaedrus' original [LNBits For WooCommerce](https://gitlab.com/sovereign-individuals/lnbits-for-woocommerce)
+This plugin is a fork of Phaedrus' original [LNbits For WooCommerce](https://gitlab.com/sovereign-individuals/lnbits-for-woocommerce)
 
 Thank you to Phaedrus for the work on the original plugin on which this plugin leans heavily.
