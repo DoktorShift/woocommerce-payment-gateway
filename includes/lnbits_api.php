@@ -21,20 +21,24 @@ class API {
     public function createCharge($amount, $memo, $order_id, $invoice_expiry_time = 1440) {
         $c = new CurlWrapper();
         $order = wc_get_order($order_id);
+        
         $data = array(
             "onchainwallet" => $this->watch_only_wallet_id,
             "lnbitswallet" => $this->wallet_id,
             "description" => $memo,
-            "webhook" => sprintf("%s/wp-json/lnbits_satspay_server/v1/payment_complete/%s", get_site_url(), $order_id),
+            "webhook" => rest_url("lnbits_satspay_server/v1/payment_complete/{$order_id}"),
             "completelink" => $order->get_checkout_order_received_url(),
-            "completelinktext" => "Payment Received. Go Back",
-            "time"=> intval($invoice_expiry_time),
-            "amount"=> $amount
+            "completelinktext" => "Return to Store",
+            "time" => intval($invoice_expiry_time),
+            "amount" => $amount,
+            "success_text" => "Payment received! Redirecting back to store..."
         );
+        
         $headers = array(
             'X-Api-Key' => $this->api_key,
             'Content-Type' => 'application/json'
         );
+        
         $response = $c->post($this->url.'/satspay/api/v1/charge', array(), $data, $headers);
         return $response;
     }

@@ -51,30 +51,47 @@ function lnbits_satspay_server_init()
     /**
      * Grab latest post title by an author!
      */
-    function lnbits_satspay_server_add_payment_complete_callback($data)
-    {
+    function lnbits_satspay_server_add_payment_complete_callback($data) {
         $order_id = $data["id"];
-        $order    = wc_get_order($order_id);
-        $order->add_order_note('Payment is settled and has been credited to your LNbits account. Purchased goods/services can be securely delivered to the customer.');
-        $payment_hash = $order->get_meta('lnbits_satspay_server_payment_hash');
-        $order->payment_complete();
-        $order->save();
-        error_log("PAID");
-        echo(json_encode(array(
-            'result'   => 'success',
-            'redirect' => $order->get_checkout_order_received_url(),
-            'paid'     => true
-        )));
-
-        if (empty($order_id)) {
-            return null;
+        $order = wc_get_order($order_id);
+        
+        if (empty($order)) {
+            return wp_send_json(['status' => 'error', 'message' => 'Order not found']);
         }
+
+        // Check if order is already completed
+        if ($order->has_status('completed')) {
+            return wp_send_json(['status' => 'success', 'message' => 'Order already completed']);
+        }
+
+        // Add order note
+        $order->add_order_note('Payment is settled and has been credited to your LNbits account. Purchased goods/services can be securely delivered to the customer.');
+        
+        // Set paid date and complete the order
+        $order->set_date_paid(current_time('mysql', true));
+        $order->set_status('completed');
+        $order->payment_complete();
+        
+        // Set transaction ID
+        $payment_hash = $order->get_meta('lnbits_satspay_server_payment_hash');
+        $order->set_transaction_id($payment_hash);
+        
+        // Save all changes
+        $order->save();
+
+        // Clear cart
+        if (function_exists('WC')) {
+            WC()->cart->empty_cart();
+        }
+
+        return wp_send_json(['status' => 'success']);
     }
 
     add_action("rest_api_init", function () {
         register_rest_route("lnbits_satspay_server/v1", "/payment_complete/(?P<id>\d+)", array(
-            "methods"  => "GET",
+            "methods" => "POST,GET",
             "callback" => "lnbits_satspay_server_add_payment_complete_callback",
+            "permission_callback" => "__return_true"
         ));
     });
 
@@ -110,13 +127,7 @@ function lnbits_satspay_server_init()
                 $this,
                 'process_admin_options'
             ));
-            add_action('woocommerce_api_wc_gateway_' . $this->id, array($this, 'check_payment'));
-
-            // This action allows us to set the order to complete even if in a local dev environment
-            add_action('woocommerce_thankyou', array(
-                $this,
-                'check_payment'
-            ));
+            add_action('woocommerce_thankyou_' . $this->id, array($this, 'check_payment'));
         }
 
         /**
@@ -213,70 +224,67 @@ function lnbits_satspay_server_init()
         public function process_payment($order_id)
         {
             $order = wc_get_order($order_id);
-
-            // This will be stored in the invoice (ie. can be used to match orders in LNbits)
-            $memo = get_bloginfo('name') . " Order #" . $order->get_id() . " Total=" . $order->get_total() . get_woocommerce_currency();
-
+            
+            $memo = get_bloginfo('name') . " Order #" . $order->get_id();
             $amount = Utils::convert_to_satoshis($order->get_total(), get_woocommerce_currency());
-
             $invoice_expiry_time = $this->get_option('lnbits_satspay_expiry_time');
-
+            
             // Call LNbits server to create invoice
             $r = $this->api->createCharge($amount, $memo, $order_id, $invoice_expiry_time);
-
+            
             if ($r['status'] === 200) {
                 $resp = $r['response'];
-                $order->add_meta_data('lnbits_satspay_server_payment_id', $resp['id'], true);
-                $order->add_meta_data('lnbits_satspay_server_invoice', $resp['payment_request'], true);
-                $order->add_meta_data('lnbits_satspay_server_payment_hash', $resp['payment_hash'], true);
+                $order->update_meta_data('lnbits_satspay_server_payment_id', $resp['id']);
+                $order->update_meta_data('lnbits_satspay_server_invoice', $resp['payment_request']);
+                $order->update_meta_data('lnbits_satspay_server_payment_hash', $resp['payment_hash']);
                 $order->save();
-
-                $url          = sprintf("%s/satspay/%s",
+                
+                // Set order status to pending payment
+                $order->update_status('pending', __('Awaiting LNbits payment', 'lnbits'));
+                
+                // Reduce stock levels
+                wc_reduce_stock_levels($order_id);
+                
+                // Remove cart
+                WC()->cart->empty_cart();
+                
+                $url = sprintf("%s/satspay/%s",
                     rtrim($this->get_option('lnbits_satspay_server_url'), '/'),
-                        $resp['id']
-                    );
-                $redirect_url = $url;
-
-                return array(
-                    "result"   => "success",
-                    "redirect" => $redirect_url
+                    $resp['id']
                 );
-            } else {
-                error_log("LNbits API failure. Status=" . $r['status']);
-                error_log(var_export($r['response'], true));
-
+                
                 return array(
-                    "result"   => "failure",
-                    "messages" => array("Failed to create LNbits invoice.")
+                    "result" => "success",
+                    "redirect" => $url
                 );
             }
+            
+            return array(
+                "result" => "failure",
+                "messages" => array("Failed to create LNbits invoice.")
+            );
         }
 
+        public function check_payment($order_id) {
+            $order = wc_get_order($order_id);
+            
+            // If order is already completed, no need to check
+            if ($order->has_status('completed')) {
+                return;
+            }
 
-        /**
-         * Checks whether given invoice was paid, using LNbits API,
-         * and updates order metadata in the database.
-         */
-        public function check_payment()
-        {
-            $order_id = wc_get_order_id_by_order_key($_REQUEST['key']);
-            $order        = wc_get_order($order_id);
-            $lnbits_payment_id = $order->get_meta('lnbits_satspay_server_payment_id');
-            $r            = $this->api->checkChargePaid($lnbits_payment_id);
-
-            if ($r['status'] == 200) {
-                if ($r['response']['paid'] == true) {
-                    $order->add_order_note('Payment is settled and has been credited to your LNbits account. The order can be securely delivered to the customer.');
+            // Check if this is a return from LNbits payment
+            if (isset($_GET['key']) && $_GET['key'] === $order->get_order_key()) {
+                $lnbits_payment_id = $order->get_meta('lnbits_satspay_server_payment_id');
+                $r = $this->api->checkChargePaid($lnbits_payment_id);
+                
+                if ($r['status'] == 200 && $r['response']['paid'] == true) {
                     $order->payment_complete();
+                    $order->add_order_note(__('Payment verified via LNbits', 'lnbits'));
                     $order->save();
-                    error_log("PAID");
                 }
-            } else {
-                // TODO: handle non 200 response status
             }
-            die();
         }
-
     }
 
     // Add this near the top of your plugin initialization, before the blocks registration
