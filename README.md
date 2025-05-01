@@ -17,28 +17,50 @@ This plugin is released under the [MIT license](https://github.com/lnbits/woocom
 ## Installation
 
 ### LNbits configuration
-1. Open your LNbits instance e.g. https://legend.lnbits.com/
+1. Open your LNbits instance e.g. https://demo.lnbits.com/
+
 1. Create a new wallet, or use an existing wallet if you already have one you want to use
+
    ![](docs/images/lnbits-setup-1.jpg)
 1. From the sidebar, take a note of the Wallet ID and Invoice/read key. You will need this later
+
    ![](docs/images/lnbits-setup-2.jpg)
+
 1. Click manage extensions in the sidemenu and enable the Satspay Server and Watch Only extensions
-   ![](docs/images/lnbits-setup-3.jpg) ![](docs/images/lnbits-setup-4.jpg) ![](docs/images/lnbits-setup-5.jpg)
+   
+   ![](docs/images/lnbits-setup-3.jpg)
+
+   ![](docs/images/lnbits-setup-4.jpg)
+
+   ![](docs/images/lnbits-setup-5.jpg)
+
 1. Open the Watch Only extension and import an xpub/ypub/zpub to add a new watch only wallet
+
    ![](docs/images/lnbits-setup-6.jpg)
+
 1. Take a note of the watch only wallet ID that has been created. You will need this later
+
    ![](docs/images/lnbits-setup-7.jpg)
+
 1. That's it. Now, let's set up the WooCommerce plugin!
 
 ### WooCommerce Plugin Setup
+
 1. Install the plugin using your Wordpress admin panel by searching for "LNbits - Bitcoin Lightning and Onchain
    Payment Gateway" or drop this repo into your wp-content/plugins directory
+
 1. Activate the plugin
+
 1. Open _WooCommerce > Settings > Payments_ and activate the LNbits payment method, then click _manage_.
+
    ![](docs/images/woocommerce-setup-1.jpg)
+
 1. Edit the Title and Description fields as you want
+
 1. Enter the LNbits URL for your LNbits server and paste in your settings for the Invoice/Read Key, Wallet ID and Watch Only Extension Wallet ID
+
    ![](docs/images/woocommerce-setup-2.jpg)
+
 1. Click "Save changes"
 
 ## Development
