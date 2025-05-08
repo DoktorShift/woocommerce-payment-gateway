@@ -3,7 +3,7 @@ Contributors: BlackCoffee, philosopher_phaedrus
 Requires at least: 5.1
 Tested up to: 6.8.1
 Requires PHP: 7.0
-Stable tag: 1.0.0
+Stable tag: 1.0.2
 License: MIT
 License URI: https://github.com/lnbits/woocommerce-payment-gateway/blob/main/LICENSE
 Tags: bitcoin, lightning, lnbits, lightning network, accept bitcoin, accept lightning, instant bitcoin, bitcoin processor, bitcoin gateway, payment gateway, payment module, bitcoin module, bitcoin woocommerce, btc
