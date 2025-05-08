@@ -21,6 +21,7 @@ class API {
     public function createCharge($amount, $memo, $order_id, $invoice_expiry_time = 1440) {
         $c = new CurlWrapper();
         $order = wc_get_order($order_id);
+        $currency = strtolower($order->get_currency());
         
         $data = array(
             "onchainwallet" => $this->watch_only_wallet_id,
@@ -30,7 +31,9 @@ class API {
             "completelink" => $order->get_checkout_order_received_url(),
             "completelinktext" => "Return to Store",
             "time" => intval($invoice_expiry_time),
-            "amount" => $amount,
+            "currency_amount" => $amount,
+            // currency from woocommerce currency setting
+            "currency" => $currency,
             "success_text" => "Payment received! Redirecting back to store..."
         );
         

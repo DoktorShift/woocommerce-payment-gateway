@@ -291,11 +291,10 @@ function lnbits_satspay_server_init()
             $order = wc_get_order($order_id);
             
             $memo = get_bloginfo('name') . " Order #" . $order->get_id();
-            $amount = Utils::convert_to_satoshis($order->get_total(), get_woocommerce_currency());
             $invoice_expiry_time = $this->get_option('lnbits_satspay_expiry_time');
             
             // Call LNbits server to create invoice
-            $r = $this->api->createCharge($amount, $memo, $order_id, $invoice_expiry_time);
+            $r = $this->api->createCharge($order->get_total(), $memo, $order_id, $invoice_expiry_time);
             
             if ($r['status'] === 200) {
                 $resp = $r['response'];
